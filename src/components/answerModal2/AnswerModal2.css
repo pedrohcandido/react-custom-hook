@@ -1,0 +1,12 @@
+.modal2{
+	position: absolute;
+	top: 70%;
+	left: 60%;
+	transform: translate(-50%,-50%);
+	background-color: #363636;
+	padding: 15px;
+	border-radius: 15px;
+	width: 20%;
+	height: 40%;
+	color: white
+}

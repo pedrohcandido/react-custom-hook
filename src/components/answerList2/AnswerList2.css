@@ -1,0 +1,12 @@
+.app5{
+	position: absolute;
+	top: 73%;
+	left: 60%;
+	transform: translate(-50%,-50%);
+	background-color: #363636;
+	padding: 15px;
+	border-radius: 15px;
+	width: 20%;
+	height: 45%;
+	color: white
+}

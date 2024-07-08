@@ -1,0 +1,53 @@
+.app3{
+	position: absolute;
+	top: 73%;
+	left: 30%;
+	transform: translate(-50%,-50%);
+	background-color: #363636;
+	padding: 15px;
+	border-radius: 15px;
+	width: 20%;
+	height: 45%;
+	color: white
+}
+#descBank,#accountBank,#typeAccount,#docType, #doc { 
+	width: 100%;
+  clear: both;
+}
+.sortEarliest2{
+	position: absolute;
+	top: 52%;
+	left: 66%;
+	transform: translate(-50%,-50%);
+	font-size: 25px;
+}
+.sortLatest2{
+	position: absolute;
+	top: 52%;
+	left: 69%;
+	transform: translate(-50%,-50%);
+	font-size: 25px;
+}
+
+
+.loading {
+	display: inline-block;
+	width: 100px;
+	height: 100px;
+	border: 2px solid rgba(0,0,0,.2 );
+	border-radius: 50%;
+	border-top-color: rgba(0,0,0,.4 );
+	animation: spin 1s ease-in-out infinite;
+	-webkit-animation: spin 1s ease-in-out infinite;
+	left: calc(110%);
+	top: calc(40%);
+	position: fixed;
+	z-index: 1;
+	}
+
+	@keyframes spin {
+	to { -webkit-transform: rotate(360deg); }
+	}
+	@-webkit-keyframes spin {
+	to { -webkit-transform: rotate(360deg); }
+	}
