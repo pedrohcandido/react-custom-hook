@@ -1,173 +1,132 @@
-import React from "react";
+import { useEffect, useState } from "react";
 import './Form.css'
 import Input from "../input";
 import { cpf, cnpj } from 'cpf-cnpj-validator'
 import AnswerList from "../answerList";
+import useInput from "../useInput/useInput";
 
-class Form extends React.Component {
+let nameContent = <p style={{color: "red", fontSize: "13px"}}>o nome não pode ser vazio</p>;
 
-	constructor(props) {
-		super(props);
+const checkName = (value) => {
+  if (value.trim() === "") {
+    nameContent = <p style={{color: "red", fontSize: "13px"}}>o nome não pode ser vazio</p>;
+  } else if (value.length < 10) {
+    nameContent = (
+			<p style={{color: "red", fontSize: "13px"}}>o nome não pode ter menos de 10 caracteres</p>
+    );
+  } else {
+    return value;
+  }
+};
 
-		this.state = {
-			name: "",
-			age: null,
-			gender: "",
-			civilStatus: "",
-			docType: "",
-			document: "",
+export default function Form(valid) {
 
-			_name: "",
-			_age: null,
-			_gender: "",
-			_civilStatus: "",
-			_docType: "",
-			_document: "",
+		const [name, setName] 								= useState("");
+		const [age, setAge] 									= useState(null);
+		const [gender, setGender] 						= useState("");
+		const [civilStatus, setCivilStatus] 	= useState("");
+		const [docType, setDocType] 					= useState("");
+		const [doc, setDoc] 									= useState("");
 
-			isError: false,
-			isValid: false,
+		const [isError, setIsError] 					= useState(false);
+		const [isSend, setIsSend] 						= useState(false);
+		const [answers, setAnswers] 					= useState([]);
 
-			isSend: false,
+		const [loading, setLoading] 					= useState(false);
 
-			answers: []
-		}
-	
+	const {
+		value: enteredName,
+		isValid: enteredNameIsValid,
+		hasError: nameInputHasError,
+		valueChangeHandler: nameChangeHandler,
+		inputBlurHandler: nameBlurHandler,
+		inputReset: resetNameInput,
+	} = useInput(checkName);
+
+	let formIsValid = false;
+
+	if (enteredNameIsValid) {
+		formIsValid = true;
 	}
 
-	handleChange = (event) => {
-		this.setState({
-			isError: false,
-			isSend: false,
-			document: event.target.value
-		})
+	const handleChange = (event) => {
+			setIsError(false)
+			setIsSend(false)
+			setDoc(event.target.value)
 	}
 
-	handleSubmit = (event) => {
+	const handleSubmit = (event) => {
+		setLoading(true)
 		event.preventDefault();
-		this.setState({ isSend: true })
 
-		let cpfCnpj = this.state.document
-
-		if( this.state.docType === "CPF" ){
-			if( !cpf.isValid(cpfCnpj) ){
-				this.setState({ isError: true})
-				return
-			}
-		} 
-		if ( this.state.docType === "CNPJ" ) {
-			if( !cnpj.isValid(cpfCnpj) ) {
-				this.setState({ isError: true})
-				return
-			}
-		}
-
+		if (!formIsValid) {
+      return;
+    }
+		setIsSend( true )
 		
-		const newObj = { id: this.state.answers.length + 1, 
-									   name: this.state.name,
-										 age: this.state.age,
-										 gender: this.state.gender,
-										 civilStatus: this.state.civilStatus,
-										 docType: this.state.docType,
-										 document: this.state.document}
-		const newArray = [...this.state.answers, newObj]
+		const newObj = { id: answers.length + 1, 
+									   name: enteredName,
+										 age: age,
+										 gender: gender,
+										 civilStatus: civilStatus,
+										 docType: docType,
+										 doc: doc}
+		const newArray = [...answers, newObj]
 
-		this.setState({answers: newArray});
+		setAnswers(newArray);
 
-		console.log(this.state.answers)
-		
+		console.log(answers)
 
-		this.setState({_name: this.state.name})
-		this.setState({_age: this.state.age})
-		this.setState({_gender: this.state.gender})
-		this.setState({_civilStatus: this.state.civilStatus})
-		this.setState({_docType: this.state.docType})
-		this.setState({_document: this.state.document})
+		setName("")
+		setAge("")
+		setGender("")
+		setCivilStatus("")
 
-		this.setState({name: ""})
-		this.setState({age: ""})
-		this.setState({gender: ""})
-		this.setState({civilStatus: ""})
-		//this.setState({docType: ""})
-		//this.setState({document: ""})
+		setTimeout(() => {
+			setLoading(false)
+ 		}, 4000)
+
+		resetNameInput();
 
 		document.getElementById("myForm").reset()
 	}
 
-	sortByLatest = () => {
-		const sortedAnswers = this.state.answers.sort( (a, b) => {
+	const sortByLatest = () => {
+		const sortedAnswers = answers.sort( (a, b) => {
 			return b.id - a.id;
 		});
-		this.setState({answers: [...sortedAnswers]})
+		setAnswers([...sortedAnswers])
 	}
 
-	sortByEarliest = () => {
-		const sortedAnswers = this.state.answers.sort( (a, b) => {
+	const sortByEarliest = () => {
+		const sortedAnswers = answers.sort( (a, b) => {
 			return  a.id - b.id;
 		});
-		this.setState({answers: [...sortedAnswers]})
-	}
-
-	removeAnswer(e) {
-		if ( ! e) {
-			this.setState({answers: this.state.answers.filter(function(answer) { 
-        return answer !== e
-    })});
-		}
+		setAnswers([...sortedAnswers])
 	};
 
-	render() {
+	const nameInput = nameInputHasError ? !valid : valid;
+
 		return (
 			<>
 			<div className="app">
-				<form id="myForm" onSubmit={this.handleSubmit.bind(this)}>
-					<Input label={"Nome"}
-									type={"text"}
-									id={"name"}
-									value={this.state.name}
-									onChange={(event) => this.setState({ name: event.target.value })}
-					/>
-
-					<Input label={"Idade"}
-									type={"number"}
-									id={"age"}
-									value={this.state.age}
-									onChange={(event) => this.setState({ age: event.target.value })}
-					/>
-
-					<p>Sexo:</p>
-					<Input label={"Feminino"}
-									type={"radio"}
-									id={"radio1"}
-									value={"Feminino"}
-									name="gender"
-									for="radio1"
-									onChange={(event) => this.setState({ gender: "Feminino" })}
-					/>
-
-					<Input label={"Masculino"}
-									type={"radio"}
-									id={"radio2"}
-									value={"Masculino"}
-									name="gender"
-									for="radio2"
-									onChange={(event) => this.setState({ gender: "Masculino" })}
-					/>
-
-					<Input label={"Outros"}
-									type={"radio"}
-									id={"radio3"}
-									value={"Outros"}
-									name="gender"
-									for="radio3"
-									onChange={(event) => this.setState({ gender: "Outros" })}
-					/>
-					
-					<br/><br/>
+				<form id="myForm" onSubmit={handleSubmit}>
+						<Input 	
+										label={"Nome"}
+										type={"text"}
+										id={"name"}
+										value={enteredName}
+										onChange={nameChangeHandler}
+										onBlur={nameBlurHandler}
+										valid={nameInput}
+						/>
+						{nameInputHasError && nameContent }
+						{!nameInputHasError && <> <br></br><br></br> </> }
 
 					<label for="civilStatus">Estado Civil</label>
 						<select name="civilStatus" 
 										id="civilStatus"
-										onChange={(event) => this.setState({ civilStatus: event.target.value})}
+										onChange={(event) => setCivilStatus(event.target.value)}
 										//required
 										>
 							<option selected value="">Selecione uma opção</option>
@@ -176,7 +135,7 @@ class Form extends React.Component {
 							<option value="Divorciado">Divorciado</option>
 							<option value="Divorciado">Viúvo</option>
 					</select>
-					<br/><br/>
+					<br/>
 
 					<p>Tipo de Documento:</p>
 					<Input label={"CPF"}
@@ -185,7 +144,7 @@ class Form extends React.Component {
 									value={"cpf"}
 									name="docType"
 									for="radioDoc1"
-									onChange={(event) => this.setState({ docType: "CPF" })}
+									onChange={(event) => setDocType("CPF")}
 					/>
 
 					<Input label={"CNPJ"}
@@ -194,38 +153,36 @@ class Form extends React.Component {
 									value={"cnpj"}
 									name="docType"
 									for="radioDoc2"
-									onChange={(event) => this.setState({ docType: "CNPJ" })}
+									onChange={(event) => setDocType("CNPJ")}
 					/>
 					<br/><br/>
 
 					<Input label={"CPF/CNPJ"}
 									type={"text"}
-									id={"document"}
-									value={this.state.document}
-									//onChange={(event) => this.setState({ document: event.target.value })}
-									onChange={this.handleChange}
+									id={"doc"}
+									value={doc}
+									onChange={handleChange}
 					/>
-					{this.state.isSend && (
+					{isSend && (
 						<>
-						{ this.state.isError && <p>O CPF/CNPJ Digitado é Inválido!</p> }
-						{ !this.state.isError && <p>Formulário Enviado com Sucesso!</p>}
+						{ isError && <p>O CPF/CNPJ Digitado é Inválido!</p> }
+						{ !isError && <p>Formulário Enviado com Sucesso!</p>}
 						</>
 					)}
+					{!isSend && <> <br></br><br></br></>}
+					<button type="submit" disabled={!formIsValid}> Enviar Formulário </button>
+						
 
-					<button type="submit"> Enviar Formulário </button>
 				</form>
-
+				{loading && <div class="loading"></div>
+				}
 			</div>
 
 			
-			<AnswerList answers={this.state.answers}/>
-			<button className="sortEarliest" onClick={this.sortByLatest}> ⬆ </button>
-			<button className="sortLatest" onClick={this.sortByEarliest}> ⬇ </button>
+			<AnswerList answers={answers}/>
+			<button className="sortEarliest" onClick={sortByLatest}> ⬆ </button>
+			<button className="sortLatest" onClick={sortByEarliest}> ⬇ </button>
 
 			</>
 		)
-	}
-
 }
-
-export default Form;

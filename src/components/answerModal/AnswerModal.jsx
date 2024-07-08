@@ -11,7 +11,7 @@ const AnswerModal = (props) => {
 				<h4>{props.answer.gender}</h4>
 				<h4>{props.answer.civilStatus}</h4>
 				<h4>{props.answer.docType}</h4>
-				<h4>{props.answer.document}</h4>
+				<h4>{props.answer.doc}</h4>
       <button onClick={props.onClose}>Voltar</button>
     </div>
   );

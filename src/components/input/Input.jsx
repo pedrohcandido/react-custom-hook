@@ -13,10 +13,11 @@ const Input = (props) => {
 									id={props.id}
 									value={props.value}
 									onChange={props.onChange}
+									onBlur={props.onBlur}
+									valid={props.valid}
 									required
 									>
 						</input>
-						<br/><br/>
 				</>
 				) :
 				(
