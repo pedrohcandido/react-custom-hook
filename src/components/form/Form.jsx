@@ -1,7 +1,6 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import './Form.css'
 import Input from "../input";
-import { cpf, cnpj } from 'cpf-cnpj-validator'
 import AnswerList from "../answerList";
 import useInput from "../useInput/useInput";
 
@@ -21,18 +20,17 @@ const checkName = (value) => {
 
 export default function Form(valid) {
 
-		const [name, setName] 								= useState("");
-		const [age, setAge] 									= useState(null);
-		const [gender, setGender] 						= useState("");
-		const [civilStatus, setCivilStatus] 	= useState("");
-		const [docType, setDocType] 					= useState("");
-		const [doc, setDoc] 									= useState("");
+		const [civilStatus, setCivilStatus] 		= useState("");
+		const [docType, setDocType] 						= useState("");
+		const [doc, setDoc] 										= useState("");
 
-		const [isError, setIsError] 					= useState(false);
-		const [isSend, setIsSend] 						= useState(false);
-		const [answers, setAnswers] 					= useState([]);
+		const [isError, setIsError] 						= useState(false);
+		const [isSend, setIsSend] 							= useState(false);
+		const [isEditAnswers, setIsEditAnswers] = useState(false);
+		const [EditAnswerId, setEditAnswerId] 	= useState(0);
+		const [answers, setAnswers] 						= useState([]);
 
-		const [loading, setLoading] 					= useState(false);
+		const [loading, setLoading] 						= useState(false);
 
 	const {
 		value: enteredName,
@@ -41,6 +39,7 @@ export default function Form(valid) {
 		valueChangeHandler: nameChangeHandler,
 		inputBlurHandler: nameBlurHandler,
 		inputReset: resetNameInput,
+		editName: inputEditName,
 	} = useInput(checkName);
 
 	let formIsValid = false;
@@ -63,11 +62,30 @@ export default function Form(valid) {
       return;
     }
 		setIsSend( true )
+
+		if (isEditAnswers) {
+			const editedAnswer = answers.filter(answers => answers.id === EditAnswerId)
+			editedAnswer[0].name = enteredName
+			editedAnswer[0].civilStatus = civilStatus
+			editedAnswer[0].docType = docType
+			editedAnswer[0].doc = doc
+
+			console.log(editedAnswer)
+			setLoading(false)
+			
+			const newAnswers = answers.map((item) => ({...item, editedAnswer: item.id === EditAnswerId}))
+			setAnswers(newAnswers)
+			setIsEditAnswers(false)
+			setCivilStatus("")
+			setDoc("")
+
+			resetNameInput();
+			document.getElementById("myForm").reset()
+			return
+		}
 		
 		const newObj = { id: answers.length + 1, 
 									   name: enteredName,
-										 age: age,
-										 gender: gender,
 										 civilStatus: civilStatus,
 										 docType: docType,
 										 doc: doc}
@@ -77,10 +95,8 @@ export default function Form(valid) {
 
 		console.log(answers)
 
-		setName("")
-		setAge("")
-		setGender("")
 		setCivilStatus("")
+		setDoc("")
 
 		setTimeout(() => {
 			setLoading(false)
@@ -105,6 +121,29 @@ export default function Form(valid) {
 		setAnswers([...sortedAnswers])
 	};
 
+	const deleteAnswers = (value) => {
+		const newAnswers = answers.filter(answers => answers.id !== value)
+		setAnswers([...newAnswers])
+	}
+
+	const editAnswers = (value) => {
+		console.log(value)
+		setIsEditAnswers(true)
+
+		const editedAnswer = answers.filter(answers => answers.id === value)
+
+		console.log(answers)
+
+		console.log(editedAnswer)
+		console.log(0)
+
+		inputEditName(editedAnswer[0].name)
+		setCivilStatus(editedAnswer[0].civilStatus)
+		setDocType(editedAnswer[0].docType)
+		setDoc(editedAnswer[0].doc)
+		setEditAnswerId(value)
+	}
+
 	const nameInput = nameInputHasError ? !valid : valid;
 
 		return (
@@ -127,6 +166,7 @@ export default function Form(valid) {
 						<select name="civilStatus" 
 										id="civilStatus"
 										onChange={(event) => setCivilStatus(event.target.value)}
+										value={civilStatus}
 										//required
 										>
 							<option selected value="">Selecione uma opção</option>
@@ -141,7 +181,7 @@ export default function Form(valid) {
 					<Input label={"CPF"}
 									type={"radio"}
 									id={"radioDoc1"}
-									value={"cpf"}
+									value={docType}
 									name="docType"
 									for="radioDoc1"
 									onChange={(event) => setDocType("CPF")}
@@ -179,7 +219,10 @@ export default function Form(valid) {
 			</div>
 
 			
-			<AnswerList answers={answers}/>
+			<AnswerList answers={answers}
+									deleteAnswers={deleteAnswers}
+									editAnswers={editAnswers}
+			/>
 			<button className="sortEarliest" onClick={sortByLatest}> ⬆ </button>
 			<button className="sortLatest" onClick={sortByEarliest}> ⬇ </button>
 
