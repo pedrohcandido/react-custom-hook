@@ -1,4 +1,3 @@
-import { cpf, cnpj } from 'cpf-cnpj-validator'
 import { useState } from 'react';
 
 function useInput(validateValue) {
@@ -20,13 +19,18 @@ function useInput(validateValue) {
 		setIsBlur(false);
 	};
 
+	const editName = (value) => {
+		setEnteredValue(value)
+	};
+
 	return {
 		value: enteredValue,
 		isValid: valueIsValid,
 		hasError,
 		valueChangeHandler,
 		inputBlurHandler,
-		inputReset
+		inputReset,
+		editName
 	};
 }
 
