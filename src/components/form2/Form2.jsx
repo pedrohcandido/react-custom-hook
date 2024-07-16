@@ -1,7 +1,6 @@
 import { useState } from "react";
 import './Form2.css'
 import Input from "../input";
-import { cpf, cnpj } from 'cpf-cnpj-validator'
 import AnswerList2 from "../answerList2";
 import useInput from "../useInput/useInput";
 
@@ -21,15 +20,16 @@ const checkDeskBank = (value) => {
 
 export default function Form2(valid) {
 
-		const [descBank, setDescBank] 				= useState("");
-		const [accountBank, setAccountBank] 	= useState(null);
-		const [typeAccount, setTypeAccount] 	= useState("");
-		const [docType, setDocType] 					= useState("");
-		const [doc, setDoc] 									= useState("");
+		const [accountBank, setAccountBank] 		= useState(null);
+		const [typeAccount, setTypeAccount] 		= useState("");
+		const [docType, setDocType] 						= useState("");
+		const [doc, setDoc] 										= useState("");
 
-		const [isError, setIsError] 					= useState(false);
-		const [isSend, setIsSend] 						= useState(false);
-		const [answers, setAnswers] 					= useState([]);
+		const [isError, setIsError] 						= useState(false);
+		const [isSend, setIsSend] 							= useState(false);
+		const [isEditAnswers, setIsEditAnswers] = useState(false);
+		const [EditAnswerId, setEditAnswerId] 	= useState(0);
+		const [answers, setAnswers] 						= useState([]);
 
 		const [loading, setLoading] 					= useState(false);
 
@@ -40,6 +40,7 @@ export default function Form2(valid) {
 			valueChangeHandler: deskBankChangeHandler,
 			inputBlurHandler: deskBankBlurHandler,
 			inputReset: resetDeskBankInput,
+			editName: inputEditName,
 		} = useInput(checkDeskBank);
 	
 		let formIsValid = false;
@@ -59,6 +60,29 @@ export default function Form2(valid) {
 		event.preventDefault();
 		setIsSend( true )
 
+		if (isEditAnswers) {
+			const editedAnswer = answers.filter(answers => answers.id === EditAnswerId)
+			editedAnswer[0].descBank = enteredDeskBank
+			editedAnswer[0].accountBank = accountBank
+			editedAnswer[0].typeAccount = typeAccount
+			editedAnswer[0].docType = docType
+			editedAnswer[0].doc = doc
+
+			setLoading(false)
+			
+			const newAnswers = answers.map((item) => ({...item, editedAnswer: item.id === EditAnswerId}))
+			setAnswers(newAnswers)
+			setIsEditAnswers(false)
+
+			setAccountBank("")
+			setTypeAccount("")
+			setDoc("")
+
+			resetDeskBankInput();
+			document.getElementById("myForm").reset()
+			return
+		}
+
 		const newObj = { id: answers.length + 1, 
 									   descBank: enteredDeskBank,
 										 accountBank: accountBank,
@@ -71,9 +95,9 @@ export default function Form2(valid) {
 
 		console.log(answers)
 
-		setDescBank("")
 		setAccountBank("")
 		setTypeAccount("")
+		setDoc("")
 
 		setTimeout(() => {
 			setLoading(false)
@@ -97,6 +121,24 @@ export default function Form2(valid) {
 		});
 		setAnswers([...sortedAnswers])
 	};
+
+	const deleteAnswers = (value) => {
+		const newAnswers = answers.filter(answers => answers.id !== value)
+		setAnswers([...newAnswers])
+	}
+
+	const editAnswers = (value) => {
+		setIsEditAnswers(true)
+
+		const editedAnswer = answers.filter(answers => answers.id === value)
+
+		inputEditName(editedAnswer[0].descBank)
+		setAccountBank(editedAnswer[0].accountBank)
+		setTypeAccount(editedAnswer[0].typeAccount)
+		setDocType(editedAnswer[0].docType)
+		setDoc(editedAnswer[0].doc)
+		setEditAnswerId(value)
+	}
 
 	const deskBankInput = deskBankInputHasError ? !valid : valid;
 
@@ -126,6 +168,7 @@ export default function Form2(valid) {
 						<select name="typeAccount" 
 										id="typeAccount"
 										onChange={(event) => setTypeAccount(event.target.value)}
+										value={typeAccount}
 										//required
 										>
 							<option selected value="">Selecione uma opção</option>
@@ -176,7 +219,10 @@ export default function Form2(valid) {
 			</div>
 
 			
-			<AnswerList2 answers={answers}/>
+			<AnswerList2	answers={answers}
+										deleteAnswers={deleteAnswers}
+										editAnswers={editAnswers}
+			/>
 			<button className="sortEarliest2" onClick={sortByLatest}> ⬆ </button>
 			<button className="sortLatest2" onClick={sortByEarliest}> ⬇ </button>
 

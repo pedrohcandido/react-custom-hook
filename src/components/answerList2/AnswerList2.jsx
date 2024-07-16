@@ -19,7 +19,8 @@ const AnswerList2 = (props) => {
 					setSelectedAnswer(answer.id)
 				} 
 				}>Visualizar</button>
-				<button onClick={() => { alert("função não desenvolvida" ) } }>Excluir</button>
+				<button onClick={() => { props.deleteAnswers(answer.id) } }>Excluir</button>
+				<button onClick={() => { props.editAnswers(answer.id) } }>Editar</button>
 				</>
 			))}
 			{showModal && createPortal(
